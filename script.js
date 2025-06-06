@@ -14,14 +14,14 @@ const {upload} = require('./config/clodinary.config')
 
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Your frontend URL
-  credentials: true // If using cookies/auth headers
+  origin: 'https://express-front-two.vercel.app/',
+  credentials: true 
 }));
 
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-production-frontend.com'
+  'https://express-front-two.vercel.app/'
 ];
 
 app.use(cors({
