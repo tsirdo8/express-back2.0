@@ -14,8 +14,25 @@ const {upload} = require('./config/clodinary.config')
 
 
 app.use(cors({
-  origin: 'http://localhost:5173', 
-  credentials: true,              
+  origin: 'http://localhost:5173', // Your frontend URL
+  credentials: true // If using cookies/auth headers
+}));
+
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-production-frontend.com'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
 app.use(express.json())
 app.use("/users",isAuth, userRouter)
