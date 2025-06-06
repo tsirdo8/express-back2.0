@@ -10,9 +10,8 @@ const isAuth = async (req, res, next) => {
     const [type, token] = headers.split(' ')
     try{
         const payload = await jwt.verify(token, process.env.JWT_SECRET)
-        req.userId = payload.userId
+         req.userId = payload.id 
         req.role = payload.role
-
         next()
     }catch(e){
         return res.status(401).json({message: "you dont have permition"})
