@@ -17,7 +17,7 @@ postRouter.get('/', async (req, res) => {
             author: {
                 _id: post.author?._id,
                 name: post.author?.name || 'Anonymous',
-                avatar: post.author?.avatar || '/default-avatar.png'
+                avatar: post.author?.avatar || 
             },
             reactions: post.reactions || { likes: [], dislikes: [] }
         }));
