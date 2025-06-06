@@ -14,26 +14,18 @@ const {upload} = require('./config/clodinary.config')
 
 
 app.use(cors({
-  origin: 'https://express-front-two.vercel.app/',
-  credentials: true 
-}));
-
-
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://express-front-two.vercel.app/'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'https://express-front-two.vercel.app',
+    'http://localhost:5173'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json())
 app.use("/users",isAuth, userRouter)
 app.use("/posts", isAuth, postRouter)
