@@ -5,23 +5,42 @@ const { isValidObjectId } = require("mongoose");
 
 const postRouter = Router()
 
+
 postRouter.get('/', async (req, res) => {
-    const posts = await postModel
-        .find()
-        .sort({ _id: -1 })
-        .populate({ path: 'author', select: 'fullName email' })
+    try {
+        const posts = await Post.find()
+            .sort({ createdAt: -1 });
+        
+        // Ensure each post has proper author info
+        const processedPosts = posts.map(post => ({
+            ...post.toObject(),
+            author: {
+                _id: post.author._id,
+                name: post.author.name || 'Anonymous',
+                avatar: post.author.avatar || '/default-avatar.png'
+            }
+        }));
 
-
-    res.status(200).json(posts)
-})
+        res.json(processedPosts);
+    } catch (error) {
+        console.error("Fetch posts error:", error);
+        res.status(500).json({ error: "Failed to fetch posts" });
+    }
+});
 
 postRouter.post('/', async (req, res) => {
     const {content, title} = req.body
+    const author = await User.findById(req.userId)
+            .select('_id name avatar');
     if(!content) {
         return res.status(400).json({message:'content it requred'})
     }
 
-    await postModel.create({content, title, author: req.userId})
+    await postModel.create({content, title, author: {
+                _id: author._id,
+                name: author.name,
+                avatar: author.avatar || '/default-avatar.png'
+            }})
     res.status(201).json({message: "post created successfully"})
 })
 

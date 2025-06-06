@@ -63,10 +63,19 @@ authRouter.post("/sign-in", async(req,res)=>{
     res.json(token)
 })
 
-authRouter.get('/current-user', isAuth, async (req, res) => {
-    const user = await User.findById(req.userId)
-    res.json(user)
-})
 
+authRouter.get('/current-user', isAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId)
+            .select('_id name email avatar'); 
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error("Current user error:", error);
+        res.status(500).json({ error: "Failed to fetch user data" });
+    }
+});
 
 module.exports = authRouter;
