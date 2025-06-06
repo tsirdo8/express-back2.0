@@ -14,10 +14,10 @@ postRouter.get('/', async (req, res) => {
         
         const processedPosts = posts.map(post => ({
             ...post.toObject(),
-            author: {
+            author:{
                 _id: post.author?._id,
                 name: post.author?.name || 'Anonymous',
-                avatar: post.author?.avatar || 
+                avatar: post.author?.avatar
             },
             reactions: post.reactions || { likes: [], dislikes: [] }
         }));
