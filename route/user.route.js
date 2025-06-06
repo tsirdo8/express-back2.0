@@ -3,6 +3,7 @@ const userRouter = require("express").Router();
 const userModel = require("../model/user.model");
 const {upload, deleteFromCloudinary} = require("../config/clodinary.config");
 const postModel = require("../model/post.model");
+const isAuth = require("../middlewares/isAuth.middleware");
 
 
 
@@ -12,26 +13,41 @@ userRouter.get("/", async(req, res)=>{
 }
 )
 
-userRouter.put('/', upload.single('avatar') , async (req, res) => {
-    const id = req.userId
-    const {email} = req.body
-    const filePath = req.file.path
-    const user = await userModel.findById(id)
-    if(filePath){
-        const deleteId = user.avatar?.split('uploads/')[1]
-        const id = deleteId.split('.')[0]
-        console.log(deleteId, "deleteId")
-        console.log(id, "id")
-        await deleteFromCloudinary(`uploads/${id}`)
+userRouter.put('/', isAuth, upload.single('avatar'), async (req, res) => {
+    try {
+        const id = req.userId;
+        const { email, name } = req.body; 
+        const filePath = req.file?.path; 
+        
+        const updateData = { email, name }; 
+        
+        if (filePath) {
+            const user = await userModel.findById(id);
+            if (user.avatar) {
+                const deleteId = user.avatar.split('uploads/')[1];
+                const cloudinaryId = deleteId.split('.')[0];
+                await deleteFromCloudinary(`uploads/${cloudinaryId}`);
+            }
+            updateData.avatar = filePath;
+        }
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            id, 
+            updateData,
+            { new: true } 
+        );
+        
+        res.status(200).json({
+            message: "User updated successfully",
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error("Update error:", error);
+        res.status(500).json({ error: "Failed to update user" });
     }
+});
 
-    await userModel.findByIdAndUpdate(id, {email, avatar: filePath })
-   
-    res.status(200).json({message: "user updated successfully"})
-})
-
-
-userRouter.delete('/:id', async (req, res) => {
+userRouter.delete('/:id', isAuth, async (req, res) => {
     const targetUserId = req.params.id
     const userId = req.userId
 
