@@ -13,7 +13,10 @@ const {upload} = require('./config/clodinary.config')
 
 
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true,              
+}));
 app.use(express.json())
 app.use("/users",isAuth, userRouter)
 app.use("/posts", isAuth, postRouter)
